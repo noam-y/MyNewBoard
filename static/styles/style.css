@@ -90,3 +90,7 @@ form > * {
     border-width: 0em;
     max-width: 70%;
 }
+
+image[alt="myboard-logo"]{
+    max-width: 90%;
+}
