@@ -15,8 +15,8 @@
     <h1>Welcome aboard, {{username}}.</h1>
     <h2>Describe your board here. inspire other quotes.</h2>
     <h3>{{message}}</h3>
-    <div> <label>Board title</label><input type="text" name="title"></div>
-    <div> <label>Board description</label><input type="text" name="description"></div>
+    <div> <label>Board title</label><input type="text" name="title" maxlength="30"></div>
+    <div> <label>Board description</label><input type="text" name="description" maxlength="300"></div>
     <div>
         <select name="quotes" class="multiple-choice" multiple>
             {% for quote in quotes %}

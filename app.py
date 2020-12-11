@@ -1,13 +1,12 @@
-from flask import Flask, render_template,url_for,redirect,request,session
+from flask import Flask, render_template, url_for, redirect, request, session
 import peewee
-from db_creator import User,Quote,Board,QuotesBoards,db as database
+from db_creator import User, Quote, Board, QuotesBoards, db as database
 import config
 from playhouse.shortcuts import model_to_dict
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 app.secret_key = 'Nothing to say except Efi koosit'
-
 
 
 # This hook ensures that a connection is opened to handle any queries
@@ -30,47 +29,54 @@ def homepage():
     return render_template("homepage.html", islogged='user_id' in session)
 
 
-@app.route('/register', methods= ['POST','GET'])
+@app.route('/register', methods=['POST', 'GET'])
 def register():
-    if request.method =='POST':
+    if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        #return f'answer is {User.select().where(User.username == username).exists()}'
-        if not User.select().where(User.username == username).exists(): 
-            #username is not taken.
-            newuser = User.create(username=username,password=password)
-            newuser.save()
-            session['user_id'] = User.select().where(User.username == username).get().id
-            return redirect(url_for('quote',islogged='user_id' in session))
-        
+        # return f'answer is {User.select().where(User.username == username).exists()}'
+        if not User.select().where(User.username == username).exists():
+            # username is not taken.
+
+            if (password == request.form.get('confirm-password')):
+                #checks that password was typed correctrly
+                newuser = User.create(username=username, password=password)
+                newuser.save()
+                session['user_id'] = User.select().where(
+                    User.username == username).get().id
+                return redirect(url_for('quote', islogged='user_id' in session))
+            else:
+                 return render_template("register.html", message='passwords not matching- try again!', islogged='user_id' in session)
+
+
         else:
-            #handles case where username is already taken
-            return render_template("register.html",message='username already taken. try again.',islogged='user_id' in session) 
-            
-        
+            # handles case where username is already taken
+            return render_template("register.html", message='username already taken. try again.', islogged='user_id' in session)
+
     else:
-        return render_template("register.html",message='',islogged='user_id' in session)
+        return render_template("register.html", message='', islogged='user_id' in session)
 
 
-@app.route('/login', methods=['POST','GET'])
+@app.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
+
         user = User.select().where((User.username == username) & (User.password == password))
         if not user.exists():
-            return render_template("login.html",message='wrong username/password- try again!',islogged='user_id' in session)
+            return render_template("login.html", message='wrong username/password- try again!', islogged='user_id' in session)
         else:
             session['user_id'] = user.get().id
             return redirect(url_for('quote'))
 
     else:
-        return render_template("login.html",message='',islogged='user_id' in session)
+        return render_template("login.html", message='', islogged='user_id' in session)
+
 
 @app.route('/logout')
 def logout():
-    session.pop('user_id',None)
+    session.pop('user_id', None)
     return redirect(url_for('login'))
 
 
@@ -82,78 +88,84 @@ def logout():
 def my_quotes():
     if 'user_id' in session:
 
-        my_quotes = User.select(User.username,Quote.description).join(Quote).where(Quote.user_id == User.get_by_id(session['user_id']))
+        my_quotes = User.select(User.username, Quote.description).join(
+            Quote).where(Quote.user_id == User.get_by_id(session['user_id']))
         my_quotes = list(my_quotes.dicts())
         #my_quotes = User.select(User.username,Quote.description).join(Quote).where(Quote.user_id == User.get_by_id(session['user_id']))
         #my_quotes = Quote.select(Quote.description,User.username).join(User).switch(User).where(Quote.user_id == User.get_by_id(session['user_id']))
-        #return render_template("quote_display.html",quotes=[q.description for q in my_quotes],authors=[q.username for q in my_quotes])
-        return render_template("quote_display.html",quotes=my_quotes, user=session['user_id'],islogged='user_id' in session)
+        # return render_template("quote_display.html",quotes=[q.description for q in my_quotes],authors=[q.username for q in my_quotes])
+        return render_template("quote_display.html", quotes=my_quotes, user=session['user_id'], islogged='user_id' in session)
     else:
-        return render_template("quote_display.html",islogged=False)
+        return render_template("quote_display.html", islogged=False)
 
 #######################################################################################################################
 ##############################        CREATING BOARDS AND QUOTES                   ####################################
 #######################################################################################################################
 
 
-@app.route('/addquote', methods= ['POST','GET'])
+@app.route('/addquote', methods=['POST', 'GET'])
 def quote():
 
     if 'user_id' not in session:
-        return render_template("add-quote.html",islogged=False)
+        return render_template("add-quote.html", islogged=False)
 
     else:
-        user= User.get_by_id(int(session['user_id']))
+        user = User.get_by_id(int(session['user_id']))
         username = user.username
         if request.method == 'POST':
             quote = request.form.get('quote')
             if Quote.select().where(Quote.description == quote).exists():
-                #handles case that quote already exists in the system.
-                return render_template("add-quote.html", username=username,boards=get_boards(),message="the quote you entered already exists- try again.",islogged='user_id' in session)
+                # handles case that quote already exists in the system.
+                return render_template("add-quote.html", username=username, boards=get_boards(), message="the quote you entered already exists- try again.", islogged='user_id' in session)
 
             else:
-                new_quote = Quote.create(description=quote,user_id=session['user_id'])
-                new_quote.save()
+                try:
+                    new_quote = Quote.create(
+                    description=quote, user_id=session['user_id'])
+                    new_quote.save()
+                except peewee.DataError:
+                    database.rollback()
+                    return render_template("add-quote.html", username=username, boards=get_boards(), message='quote is too long- try adding a shorter quote.', islogged='user_id' in session)
                 quote_id = Quote.select().where(Quote.description == quote).get().id
                 boards_matching = request.form.getlist('boards')
-                for b in boards_matching :
-                    newlink = QuotesBoards.create(quote_id=quote_id,board_id=b)
+                for b in boards_matching:
+                    newlink = QuotesBoards.create(
+                        quote_id=quote_id, board_id=b)
                     newlink.save()
-                return render_template("add-quote.html", username=username,boards=get_boards(),message=f'{username}, your quote was added to our main gallery.',islogged='user_id' in session)
+                return render_template("add-quote.html", username=username, boards=get_boards(), message=f'{username}, your quote was added to our main gallery.', islogged='user_id' in session)
         else:
-            return render_template("add-quote.html", username=username,boards=get_boards(),message='',islogged='user_id' in session)
-    
+            return render_template("add-quote.html", username=username, boards=get_boards(), message='', islogged='user_id' in session)
 
 
-
-@app.route('/createboard', methods=['POST','GET'])
+@app.route('/createboard', methods=['POST', 'GET'])
 def new_board():
     if 'user_id' not in session:
-        return render_template("add-quote.html",islogged=False)
+        return render_template("add-quote.html", islogged=False)
     else:
-        user= User.get_by_id(int(session['user_id']))
-        username=user.username
+        user = User.get_by_id(int(session['user_id']))
+        username = user.username
         if request.method == 'POST':
             title = request.form.get('title')
             description = request.form.get('description')
             if Board.select().where(Board.title == title).exists():
-                #handles case when board with this title already exists.
-                return render_template("add-board.html",username=username,quotes=get_quotes(),message='board with this title already exists.',islogged='user_id' in session)
+                # handles case when board with this title already exists.
+                return render_template("add-board.html", username=username, quotes=get_quotes(), message='board with this title already exists.', islogged='user_id' in session)
 
             else:
-                new_board = Board.create(title=title,description=description)
+                new_board = Board.create(title=title, description=description)
                 new_board.save()
-                #adding the quotes related to the board
+                # adding the quotes related to the board
                 board_id = Board.select().where(Board.title == title).get().id
                 quotes_in_board = request.form.getlist('quotes')
-                #return f'number of qoutes in board- {quotes_in_board}'
-                for q in quotes_in_board :
-                    newlink = QuotesBoards.create(quote_id=q,board_id=board_id)
+                # return f'number of qoutes in board- {quotes_in_board}'
+                for q in quotes_in_board:
+                    newlink = QuotesBoards.create(
+                        quote_id=q, board_id=board_id)
                     newlink.save()
-                return render_template("add-board.html",username=username,quotes=get_quotes(),message='Board created Successfuly!',islogged='user_id' in session)
+                return render_template("add-board.html", username=username, quotes=get_quotes(), message='Board created Successfuly!', islogged='user_id' in session)
         else:
-            return render_template("add-board.html",username=username,quotes=get_quotes(),message='',islogged='user_id' in session)
-        
+            return render_template("add-board.html", username=username, quotes=get_quotes(), message='', islogged='user_id' in session)
+
 
 def get_quotes():
     all_quotes = Quote.select()
@@ -163,6 +175,7 @@ def get_quotes():
 def get_boards():
     all_boards = Board.select()
     return all_boards
+
 
 if __name__ == "__main__":
     app.run(debug=True)

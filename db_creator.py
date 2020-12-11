@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 
-from peewee import PostgresqlDatabase, CharField, IntegerField,PrimaryKeyField,ForeignKeyField,Model
+from peewee import PostgresqlDatabase, CharField, IntegerField, PrimaryKeyField, ForeignKeyField, Model
 import datetime
 import os
-
-#db = peewee.SqliteDatabase('inspire_app.db')
-#db = PostgresqlDatabase('MyBoard.db',password='postgres')
-
 
 db = PostgresqlDatabase(
     os.environ['DATABASE'],
@@ -22,6 +18,7 @@ class BaseModel(Model):
 
     class Meta:
         database = db
+        autorollback=True
 
 
 class User(BaseModel):
@@ -47,12 +44,12 @@ class Board(BaseModel):
 class Quote(BaseModel):
 
     user_id = ForeignKeyField(User)
-    description = CharField(unique=True)
-    
+    description = CharField(unique=True, max_length=500)
 
     class Meta:
 
         db_table = 'quotes'
+
 
 class QuotesBoards(BaseModel):
 
@@ -64,6 +61,5 @@ class QuotesBoards(BaseModel):
         db_table = 'quotes_boards'
 
 
-
-tables = [User,Board,Quote,QuotesBoards]
+tables = [User, Board, Quote, QuotesBoards]
 db.create_tables(tables)
