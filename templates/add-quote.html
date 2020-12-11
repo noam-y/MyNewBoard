@@ -7,6 +7,8 @@
 
 
 {% block content %}
+
+{% if islogged %}
 <form class="fill-form" action="#" method="POST">
     <h1>Welcome aboard, {{username}}.</h1>
     <h2>Add your new quotes here. inspire other people.</h2>
@@ -24,5 +26,14 @@
     
     <div> <input type="submit" id="submitbutton"  value="Add new quote" ></div>
 </form>
+
+
+{% else %}
+
+<h1>Error.</h1>
+<h2>You are not logged in. in order to add quotes, you have to log in</h2>
+
+{% endif %}
+
 {% endblock %}
 

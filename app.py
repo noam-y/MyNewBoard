@@ -89,7 +89,7 @@ def my_quotes():
         #return render_template("quote_display.html",quotes=[q.description for q in my_quotes],authors=[q.username for q in my_quotes])
         return render_template("quote_display.html",quotes=my_quotes, user=session['user_id'],islogged='user_id' in session)
     else:
-        return 'no user is connected- try again later...'
+        return render_template("quote_display.html",islogged=False)
 
 #######################################################################################################################
 ##############################        CREATING BOARDS AND QUOTES                   ####################################
@@ -100,10 +100,9 @@ def my_quotes():
 def quote():
 
     if 'user_id' not in session:
-        return 'Only logged users can add quotes and create board. log in and retry!'
+        return render_template("add-quote.html",islogged=False)
 
     else:
-        
         user= User.get_by_id(int(session['user_id']))
         username = user.username
         if request.method == 'POST':
@@ -130,7 +129,7 @@ def quote():
 @app.route('/createboard', methods=['POST','GET'])
 def new_board():
     if 'user_id' not in session:
-        return 'Unregistered users cant create Boards. try again!'
+        return render_template("add-quote.html",islogged=False)
     else:
         user= User.get_by_id(int(session['user_id']))
         username=user.username

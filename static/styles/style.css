@@ -22,7 +22,7 @@ body{
     font-family: 'Roboto Slab',Arial, Helvetica, sans-serif;
 }
 
-input[type="text"]{
+input[type="text"],input[type="password"]{
     margin: 0.5em 1em 0.5em 1em;
     background-color: rgb(255, 255, 253);
     border-width: 0px;

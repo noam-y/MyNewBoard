@@ -8,7 +8,6 @@ import os
 #db = PostgresqlDatabase('MyBoard.db',password='postgres')
 
 
-
 db = PostgresqlDatabase(
     os.environ['DATABASE'],
     user=os.environ['POST_USER'],
@@ -22,7 +21,6 @@ db = PostgresqlDatabase(
 class BaseModel(Model):
 
     class Meta:
-
         database = db
 
 
