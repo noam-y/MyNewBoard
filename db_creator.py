@@ -7,12 +7,7 @@ import os
 #db = peewee.SqliteDatabase('inspire_app.db')
 #db = PostgresqlDatabase('MyBoard.db',password='postgres')
 
-db = PostgresqlDatabase(
-    'd7d1ru5hf4u72d',  # Required by Peewee.
-    user='klcormpopfmrvj',  # Will be passed directly to psycopg2.
-    password='10ca1c685fbfbf348b1098aa3dce97bc253daac7235a636cf61dfbb4bb636402',  # Ditto.
-    port=5432,
-    host='ec2-3-211-176-230.compute-1.amazonaws.com')  # Ditto.
+
 
 db = PostgresqlDatabase(
     os.environ['DATABASE'],

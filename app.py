@@ -27,7 +27,7 @@ def _db_close(exc):
 
 @app.route('/')
 def homepage():
-    redirect(url_for('register'))
+    return render_template("homepage.html", islogged='user_id' in session)
 
 
 @app.route('/register', methods= ['POST','GET'])
@@ -41,15 +41,15 @@ def register():
             newuser = User.create(username=username,password=password)
             newuser.save()
             session['user_id'] = User.select().where(User.username == username).get().id
-            return redirect(url_for('quote'))
+            return redirect(url_for('quote',islogged='user_id' in session))
         
         else:
             #handles case where username is already taken
-            return render_template("register.html",message='username already taken. try again.') 
+            return render_template("register.html",message='username already taken. try again.',islogged='user_id' in session) 
             
         
     else:
-        return render_template("register.html",message='')
+        return render_template("register.html",message='',islogged='user_id' in session)
 
 
 @app.route('/login', methods=['POST','GET'])
@@ -60,13 +60,13 @@ def login():
         
         user = User.select().where((User.username == username) & (User.password == password))
         if not user.exists():
-            return render_template("login.html",message='wrong username/password- try again!')
+            return render_template("login.html",message='wrong username/password- try again!',islogged='user_id' in session)
         else:
             session['user_id'] = user.get().id
             return redirect(url_for('quote'))
 
     else:
-        return render_template("login.html",message='')
+        return render_template("login.html",message='',islogged='user_id' in session)
 
 @app.route('/logout')
 def logout():
@@ -78,14 +78,16 @@ def logout():
 ##############################        DISPLAYING QUOTES AND BOARDS                 ####################################
 #######################################################################################################################
 
-@app.route('/display')
+@app.route('/myquotes')
 def my_quotes():
     if 'user_id' in session:
 
         my_quotes = User.select(User.username,Quote.description).join(Quote).where(Quote.user_id == User.get_by_id(session['user_id']))
+        my_quotes = list(my_quotes.dicts())
+        #my_quotes = User.select(User.username,Quote.description).join(Quote).where(Quote.user_id == User.get_by_id(session['user_id']))
         #my_quotes = Quote.select(Quote.description,User.username).join(User).switch(User).where(Quote.user_id == User.get_by_id(session['user_id']))
         #return render_template("quote_display.html",quotes=[q.description for q in my_quotes],authors=[q.username for q in my_quotes])
-        return render_template("quote_display.html",quotes=model_to_dict(my_quotes))
+        return render_template("quote_display.html",quotes=my_quotes, user=session['user_id'],islogged='user_id' in session)
     else:
         return 'no user is connected- try again later...'
 
@@ -108,7 +110,7 @@ def quote():
             quote = request.form.get('quote')
             if Quote.select().where(Quote.description == quote).exists():
                 #handles case that quote already exists in the system.
-                return render_template("add-quote.html", username=username,boards=get_boards(),message="the quote you entered already exists- try again.")
+                return render_template("add-quote.html", username=username,boards=get_boards(),message="the quote you entered already exists- try again.",islogged='user_id' in session)
 
             else:
                 new_quote = Quote.create(description=quote,user_id=session['user_id'])
@@ -118,9 +120,9 @@ def quote():
                 for b in boards_matching :
                     newlink = QuotesBoards.create(quote_id=quote_id,board_id=b)
                     newlink.save()
-                return render_template("add-quote.html", username=username,boards=get_boards(),message=f'{username}, your quote was added to our main gallery.')
+                return render_template("add-quote.html", username=username,boards=get_boards(),message=f'{username}, your quote was added to our main gallery.',islogged='user_id' in session)
         else:
-            return render_template("add-quote.html", username=username,boards=get_boards(),message='')
+            return render_template("add-quote.html", username=username,boards=get_boards(),message='',islogged='user_id' in session)
     
 
 
@@ -137,7 +139,7 @@ def new_board():
             description = request.form.get('description')
             if Board.select().where(Board.title == title).exists():
                 #handles case when board with this title already exists.
-                return render_template("add-board.html",username=username,quotes=get_quotes(),message='board with this title already exists.')
+                return render_template("add-board.html",username=username,quotes=get_quotes(),message='board with this title already exists.',islogged='user_id' in session)
 
             else:
                 new_board = Board.create(title=title,description=description)
@@ -149,9 +151,9 @@ def new_board():
                 for q in quotes_in_board :
                     newlink = QuotesBoards.create(quote_id=q,board_id=board_id)
                     newlink.save()
-                return render_template("add-board.html",username=username,quotes=get_quotes(),message='Board created Successfuly! ')
+                return render_template("add-board.html",username=username,quotes=get_quotes(),message='Board created Successfuly!',islogged='user_id' in session)
         else:
-            return render_template("add-board.html",username=username,quotes=get_quotes(),message='')
+            return render_template("add-board.html",username=username,quotes=get_quotes(),message='',islogged='user_id' in session)
         
 
 def get_quotes():
