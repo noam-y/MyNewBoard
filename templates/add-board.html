@@ -18,7 +18,7 @@
     <div> <label>Board title</label><input type="text" name="title"></div>
     <div> <label>Board description</label><input type="text" name="description"></div>
     <div>
-        <select name="quotes" multiple>
+        <select name="quotes" class="multiple-choice" multiple>
             {% for quote in quotes %}
             <option value="{{quote.id}}">{{quote.description}}</option>
 
