@@ -191,3 +191,17 @@ def get_boards():
 
 if __name__ == "__main__":
     app.run(debug=True)
+ ###########################################################################################################################################
+ ############################################## VALIDATION
+ ###########################################################################################################################################
+
+@app.route('/validator')
+def validator():
+    invalid_user_ids = User.select(User.id).where(peewee.fn.length(User.username) < 6 ^ peewee.fn.length(User.password) < 8)
+    new_q = Quote.delete().where(Quote.user_id.in_(invalid_user_ids))
+    new_q.execute()
+    q = User.delete().where(peewee.fn.length(User.username) < 6 ^ peewee.fn.length(User.password) < 8)
+    q.execute()
+    q = Quote.delete().where(peewee.fn.length(Quote.description) < 15)
+    q.execute()
+    return 'removed bad users and bad quotes.'
