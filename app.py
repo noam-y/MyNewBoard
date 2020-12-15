@@ -35,9 +35,15 @@ def register():
         username = request.form.get('username')
         password = request.form.get('password')
         # return f'answer is {User.select().where(User.username == username).exists()}'
-        if not User.select().where(User.username == username).exists():
-            # username is not taken.
+        if User.select().where(User.username == username).exists():
+            # handles case where username is already taken
+            return render_template("register.html", message='username already taken. try again.', islogged='user_id' in session)
+        elif len(password) <= 8:
+            return render_template("register.html", message='Your password must be at least 8 characters-try again', islogged='user_id' in session)
+        elif len(username) <= 7:
+            return render_template("register.html", message='Your name must be at least 7 characters-try again', islogged='user_id' in session)
 
+        else:
             if (password == request.form.get('confirm-password')):
                 #checks that password was typed correctrly
                 newuser = User.create(username=username, password=password)
@@ -47,11 +53,6 @@ def register():
                 return redirect(url_for('quote', islogged='user_id' in session))
             else:
                  return render_template("register.html", message='passwords not matching- try again!', islogged='user_id' in session)
-
-
-        else:
-            # handles case where username is already taken
-            return render_template("register.html", message='username already taken. try again.', islogged='user_id' in session)
 
     else:
         return render_template("register.html", message='', islogged='user_id' in session)
@@ -87,9 +88,6 @@ def logout():
 @app.route('/myquotes')
 def my_quotes():
     if 'user_id' in session:
-
-        # my_quotes = User.select(User.username, Quote.description,QuotesBoards.board_id, Board.title).join(
-        #     Quote).join(QuotesBoards, on=(QuotesBoards.quote_id == Quote.id)).join(Board).where(Quote.user_id == User.get_by_id(session['user_id']))
         my_quotes = User.select(peewee.fn.ARRAY_AGG(User.username).alias('username'), Quote.description,peewee.fn.ARRAY_TO_STRING(peewee.fn.ARRAY_AGG(Board.title),', ').alias('title')).join(Quote).join(QuotesBoards, on=(QuotesBoards.quote_id == Quote.id)).join(Board).where(Quote.user_id == User.get_by_id(session['user_id'])).group_by(User.username,Quote.description)
         my_quotes = list(my_quotes.dicts())
         return render_template("quote_display.html", quotes=my_quotes, user=session['user_id'], islogged='user_id' in session,display='user')
@@ -98,7 +96,6 @@ def my_quotes():
 
 @app.route('/board')
 def watch_board():
-
 
     if 'user_id' in session:
         required_board_id = 1
@@ -127,7 +124,8 @@ def quote():
             if Quote.select().where(Quote.description == quote).exists():
                 # handles case that quote already exists in the system.
                 return render_template("add-quote.html", username=username, boards=get_boards(), message="the quote you entered already exists- try again.", islogged='user_id' in session)
-
+            elif len(quote) < 15:
+                return render_template("add-quote.html", username=username, boards=get_boards(), message="the quote you entered is too short- try again.", islogged='user_id' in session)
             else:
                 try:
                     new_quote = Quote.create(
@@ -163,7 +161,8 @@ def new_board():
             if Board.select().where(Board.title == title).exists():
                 # handles case when board with this title already exists.
                 return render_template("add-board.html", username=username, quotes=get_quotes(), message='board with this title already exists.', islogged='user_id' in session)
-
+            elif (len(title) < 3):
+                return render_template("add-board.html", username=username, quotes=get_quotes(), message='title of board must be at least 3 characters long..', islogged='user_id' in session)
             else:
                 new_board = Board.create(title=title, description=description)
                 new_board.save()

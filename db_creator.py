@@ -5,7 +5,6 @@ import datetime
 import os
 
 
-
 db = PostgresqlDatabase(
     os.environ['DATABASE'],
     user=os.environ['POST_USER'],
@@ -13,7 +12,7 @@ db = PostgresqlDatabase(
     host=os.environ['POST_HOST'],
     port=os.environ['POST_PORT'],
 )
-#heroku deploy settings
+# #heroku deploy settings
 
 
 class BaseModel(Model):
