@@ -101,3 +101,24 @@ select :nth-child(even){
 }
 
 
+.myDropDown
+{
+   height: 50px;
+   overflow: auto;
+}
+
+.single-board{
+    background-color: #d0e8f2;
+    color:#283f44;
+    border-radius: 0.2em;
+    padding:0.4em;
+    margin:0.5em;
+}
+
+.board-tags-div{
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+}
+
+

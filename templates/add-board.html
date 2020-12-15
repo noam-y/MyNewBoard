@@ -18,7 +18,7 @@
     <div> <label>Board title</label><input type="text" name="title" maxlength="30"></div>
     <div> <label>Board description</label><input type="text" name="description" maxlength="300"></div>
     <div>
-        <select name="quotes" class="multiple-choice" multiple>
+        <select name="quotes" class="multiple-choice myDropDown" multiple>
             {% for quote in quotes %}
             <option value="{{quote.id}}">{{quote.description}}</option>
 

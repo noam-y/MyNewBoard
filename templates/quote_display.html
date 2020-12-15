@@ -20,7 +20,11 @@
             <div> 
                 <p style="text-align: center;">
                 {% if q.title != ''%}
-                boards: {{q.title}}
+                
+                <div class="board-tags-div">{% for board_title in q.title.split(',') %}
+                    <div class="single-board">{{board_title}}</div>
+
+                {% endfor %}</div>
                 {% else %}
                 not connected to any board. Add a new board now and pin this quote!
                 {% endif %}</p>

@@ -15,7 +15,7 @@
     
     <div> <label>quote</label><input type="text" name="quote"></div>
     <div>
-        <select name="boards" class="multiple-choice" multiple>
+        <select name="boards" class="multiple-choice myDropDown" multiple>
             {% for board in boards %}
             <option value="{{board.id}}">{{board.title}} {{board.id}}</option>
 
