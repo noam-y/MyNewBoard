@@ -16,8 +16,8 @@
         {% for q in quotes %}
         <div class="quote">
             <h2 style="text-align: center;">"{{q.description}}"</h2>
-            <p style="text-align: center;"> author: {{q.username}}</p>
-            <p> boards: {{q.title}} </p>
+            <p style="text-align: center;"> author: you</p>
+            <p style="text-align: center;"> boards: {{q.title}} </p>
         </div>
         {% endfor %}
         </div>
@@ -25,7 +25,7 @@
 
         <select name="boards" class="multiple-choice" multiple>
         {% for board in boards %}
-        <option value="{{board.id}}">{{board.title}} {{board.id}}</option>
+        <option value="{{board.id}}">{{board.title}} </option>
 
         {% endfor %}
           </select>

@@ -38,9 +38,9 @@ def register():
         if User.select().where(User.username == username).exists():
             # handles case where username is already taken
             return render_template("register.html", message='username already taken. try again.', islogged='user_id' in session)
-        elif len(password) <= 8:
+        elif len(password) < 8:
             return render_template("register.html", message='Your password must be at least 8 characters-try again', islogged='user_id' in session)
-        elif len(username) <= 7:
+        elif len(username) < 7:
             return render_template("register.html", message='Your name must be at least 7 characters-try again', islogged='user_id' in session)
 
         else:
