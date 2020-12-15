@@ -72,7 +72,7 @@ form > * {
 
 .quote-boards{
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: row;
     justify-content: center;
 }
 
@@ -82,6 +82,7 @@ form > * {
     border-radius: 1em;
     padding: 1em 2em 1em 2em;
     margin:1em;
+    flex: 1 1 auto;
 }
 
 .multiple-choice, .multiple-choice:active{
@@ -101,11 +102,7 @@ select :nth-child(even){
 }
 
 
-.myDropDown
-{
-   height: 50px;
-   overflow: auto;
-}
+
 
 .single-board{
     background-color: #d0e8f2;
@@ -119,6 +116,19 @@ select :nth-child(even){
     display: flex;
     flex-flow: row wrap;
     justify-content: center;
+}
+
+
+
+
+select option {
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+
+option:hover, option:checked{
+    background-color: #283f44;
+    color:white
 }
 
 
