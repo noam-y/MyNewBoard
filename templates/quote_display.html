@@ -17,7 +17,14 @@
         <div class="quote">
             <h2 style="text-align: center;">"{{q.description}}"</h2>
             <p style="text-align: center;"> author: you</p>
-            <p style="text-align: center;"> boards: {{q.title}} </p>
+            <div> 
+                <p style="text-align: center;">
+                {% if q.title != ''%}
+                boards: {{q.title}}
+                {% else %}
+                not connected to any board. Add a new board now and pin this quote!
+                {% endif %}</p>
+            </div>
         </div>
         {% endfor %}
         </div>
@@ -26,11 +33,9 @@
         <select name="boards" class="multiple-choice" multiple>
         {% for board in boards %}
         <option value="{{board.id}}">{{board.title}} </option>
-
+        
         {% endfor %}
           </select>
-
-
 
         <div class="quote-boards">
         {% for q in quotes %}

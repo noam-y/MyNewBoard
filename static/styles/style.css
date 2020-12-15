@@ -70,17 +70,17 @@ form > * {
     margin-right: auto;
 }
 
-.quote-board{
+.quote-boards{
     display: flex;
-    flex: row wrap;
-    justify-content: space-between;
+    flex-flow: row wrap;
+    justify-content: center;
 }
 
 .quote{
     background-color: #79a3b1;
     color: #fcf8ec;
     border-radius: 1em;
-    padding: 1em;
+    padding: 1em 2em 1em 2em;
     margin:1em;
 }
 

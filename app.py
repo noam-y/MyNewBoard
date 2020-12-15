@@ -44,6 +44,7 @@ def register():
             return render_template("register.html", message='Your name must be at least 7 characters-try again', islogged='user_id' in session)
 
         else:
+            # input is totaly valid- user is created.
             if (password == request.form.get('confirm-password')):
                 #checks that password was typed correctrly
                 newuser = User.create(username=username, password=password)
@@ -88,7 +89,7 @@ def logout():
 @app.route('/myquotes')
 def my_quotes():
     if 'user_id' in session:
-        my_quotes = User.select(peewee.fn.ARRAY_AGG(User.username).alias('username'), Quote.description,peewee.fn.ARRAY_TO_STRING(peewee.fn.ARRAY_AGG(Board.title),', ').alias('title')).join(Quote).join(QuotesBoards, on=(QuotesBoards.quote_id == Quote.id)).join(Board).where(Quote.user_id == User.get_by_id(session['user_id'])).group_by(User.username,Quote.description)
+        my_quotes = User.select(peewee.fn.ARRAY_AGG(User.username).alias('username'), Quote.description,peewee.fn.ARRAY_TO_STRING(peewee.fn.ARRAY_AGG(Board.title),', ').alias('title')).join(Quote).join(QuotesBoards, peewee.JOIN.LEFT_OUTER,on=(QuotesBoards.quote_id == Quote.id)).join(Board,peewee.JOIN.LEFT_OUTER).where(Quote.user_id == User.get_by_id(session['user_id'])).group_by(User.username,Quote.description)
         my_quotes = list(my_quotes.dicts())
         return render_template("quote_display.html", quotes=my_quotes, user=session['user_id'], islogged='user_id' in session,display='user')
     else:
