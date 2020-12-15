@@ -88,13 +88,23 @@ def logout():
 def my_quotes():
     if 'user_id' in session:
 
-        my_quotes = User.select(User.username, Quote.description).join(
-            Quote).where(Quote.user_id == User.get_by_id(session['user_id']))
+        # my_quotes = User.select(User.username, Quote.description,QuotesBoards.board_id, Board.title).join(
+        #     Quote).join(QuotesBoards, on=(QuotesBoards.quote_id == Quote.id)).join(Board).where(Quote.user_id == User.get_by_id(session['user_id']))
+        my_quotes = User.select(peewee.fn.ARRAY_AGG(User.username).alias('username'), Quote.description,peewee.fn.ARRAY_TO_STRING(peewee.fn.ARRAY_AGG(Board.title),', ').alias('title')).join(Quote).join(QuotesBoards, on=(QuotesBoards.quote_id == Quote.id)).join(Board).where(Quote.user_id == User.get_by_id(session['user_id'])).group_by(User.username,Quote.description)
         my_quotes = list(my_quotes.dicts())
-        #my_quotes = User.select(User.username,Quote.description).join(Quote).where(Quote.user_id == User.get_by_id(session['user_id']))
-        #my_quotes = Quote.select(Quote.description,User.username).join(User).switch(User).where(Quote.user_id == User.get_by_id(session['user_id']))
-        # return render_template("quote_display.html",quotes=[q.description for q in my_quotes],authors=[q.username for q in my_quotes])
-        return render_template("quote_display.html", quotes=my_quotes, user=session['user_id'], islogged='user_id' in session)
+        return render_template("quote_display.html", quotes=my_quotes, user=session['user_id'], islogged='user_id' in session,display='user')
+    else:
+        return render_template("quote_display.html", islogged=False)
+
+@app.route('/board')
+def watch_board():
+
+
+    if 'user_id' in session:
+        required_board_id = 1
+        board_quotes = QuotesBoards.select(Quote.description,User.username).join(Quote).join(User).where(QuotesBoards.board_id == required_board_id)
+        board_quotes = list(board_quotes.dicts())
+        return render_template("quote_display.html",boards=get_boards(), quotes=board_quotes, user=session['user_id'], islogged='user_id' in session, display='board')
     else:
         return render_template("quote_display.html", islogged=False)
 
@@ -135,6 +145,9 @@ def quote():
                 return render_template("add-quote.html", username=username, boards=get_boards(), message=f'{username}, your quote was added to our main gallery.', islogged='user_id' in session)
         else:
             return render_template("add-quote.html", username=username, boards=get_boards(), message='', islogged='user_id' in session)
+
+
+
 
 
 @app.route('/createboard', methods=['POST', 'GET'])

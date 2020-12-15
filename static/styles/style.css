@@ -84,7 +84,7 @@ form > * {
     margin:1em;
 }
 
-.multiple-choice{
+.multiple-choice, .multiple-choice:active{
     padding:0.2em;
     border-radius: 0.5em;
     border-width: 0em;
@@ -94,3 +94,10 @@ form > * {
 image[alt="myboard-logo"]{
     max-width: 90%;
 }
+
+
+select :nth-child(even){
+    background-color: #fcf8ec;
+}
+
+

@@ -10,19 +10,42 @@
 
 
 {% if islogged %}
-<div class="quote-boards">
-{% for q in quotes %}
-<div class="quote">
-    <h2 style="text-align: center;"">"{{q.description}}"</h2>
-    <p style="text-align: center;"> author: you</p>
-</div>
-{% endfor %}
-</div>
+
+    {% if display=='user'%}
+        <div class="quote-boards">
+        {% for q in quotes %}
+        <div class="quote">
+            <h2 style="text-align: center;">"{{q.description}}"</h2>
+            <p style="text-align: center;"> author: {{q.username}}</p>
+            <p> boards: {{q.title}} </p>
+        </div>
+        {% endfor %}
+        </div>
+    {% elif display == 'board'%}
+
+        <select name="boards" class="multiple-choice" multiple>
+        {% for board in boards %}
+        <option value="{{board.id}}">{{board.title}} {{board.id}}</option>
+
+        {% endfor %}
+          </select>
+
+
+
+        <div class="quote-boards">
+        {% for q in quotes %}
+            <div class="quote">
+                <h2 style="text-align: center;">"{{q.description}}"</h2>
+                <p style="text-align: center;"> author: {{q.username}}</p>
+
+            </div>
+        {% endfor %}
+            </div>
+    {% endif %}
 
 {% else %}
-
-<h1>Error.</h1>
-<h2>You are not logged in. in order to view your quotes, you have to log in</h2>
+    <h1>Error.</h1>
+    <h2>You are not logged in. in order to view your quotes, you have to log in</h2>
 
 {% endif %}
 
